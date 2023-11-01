@@ -24,9 +24,14 @@ int main() {
 #endif
 
     chip->Init();
-    host->Init();
 
-    host->Draw(chip->GetDisplay());
+    host->Init();
+    host->LoadProgram("Programs/ibm.ch8", chip);
+
+    while(!host->GetStop()){
+        host->Update(chip);
+        host->Draw(chip->GetDisplay());
+    }
 
     return 0;
 }
