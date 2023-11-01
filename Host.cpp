@@ -10,7 +10,7 @@ void Host::Update() {
 
 }
 
-void Host::Draw() {
+void Host::Draw(Display* display) {
 
 }
 

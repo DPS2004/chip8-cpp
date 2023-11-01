@@ -23,8 +23,10 @@ int main() {
     host = new HostText;
 #endif
 
+    chip->Init();
     host->Init();
 
+    host->Draw(chip->GetDisplay());
 
     return 0;
 }

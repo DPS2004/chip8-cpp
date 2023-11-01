@@ -17,6 +17,9 @@ add_executable(chip8_cpp_graphic main.cpp
         Hosts/HostGraphic.h
         Chip.cpp
         Chip.h
+        font.h
+        Display.cpp
+        Display.h
 )
 target_compile_definitions(chip8_cpp_graphic PUBLIC HOST_GRAPHIC)
 target_link_libraries(${PROJECT_NAME}_graphic SDL2main SDL2)
@@ -27,6 +30,9 @@ add_executable(chip8_cpp_text main.cpp
         Hosts/HostText.cpp
         Hosts/HostText.h
         Chip.cpp
-        Chip.h)
+        Chip.h
+        font.h
+        Display.cpp
+        Display.h)
 target_compile_definitions(chip8_cpp_text PUBLIC HOST_TEXT)
 target_link_libraries(${PROJECT_NAME}_text)
