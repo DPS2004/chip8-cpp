@@ -29,3 +29,7 @@ void Host::LoadProgram(std::string filename, Chip* chip) {
 bool Host::GetStop() {
     return stop;
 }
+
+void Host::Exit() {
+
+}

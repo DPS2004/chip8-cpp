@@ -16,6 +16,8 @@ public:
 
     virtual void LoadProgram(std::string filename, Chip* chip);
 
+    virtual void Exit();
+
     bool GetStop();
 
 protected:

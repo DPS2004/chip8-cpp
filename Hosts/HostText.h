@@ -13,6 +13,7 @@ public:
     void Draw(Display* display) override;
     int GetInput() override;
     void LoadProgram(std::string filename, Chip* chip)  override;
+    void Exit() override;
 private:
     int remainingSteps;
     char border;

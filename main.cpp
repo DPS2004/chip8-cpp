@@ -10,7 +10,7 @@
     #include "Hosts/HostText.h"
 #endif
 
-int main() {
+int main(int argc, char* args[]) {
 
     Chip* chip = new Chip;
     //set up host
@@ -32,6 +32,8 @@ int main() {
         host->Update(chip);
         host->Draw(chip->GetDisplay());
     }
+
+    host->Exit();
 
     return 0;
 }

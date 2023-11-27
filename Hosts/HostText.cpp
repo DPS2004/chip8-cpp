@@ -73,3 +73,7 @@ int HostText::GetInput() {
         return -1;
     }
 }
+
+void HostText::Exit() {
+    std::cout << "Exiting program..." << std::endl;
+}
