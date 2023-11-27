@@ -47,11 +47,11 @@ void HostText::LoadProgram(std::string filename, Chip* chip) {
 void HostText::Update(Chip *chip) {
     int input = GetInput();
     if(!stop){
-        chip->Step(input);
+        chip->Step(input,((double)1/(double)60));
     }
 }
 
-int HostText::GetInput() {
+uint16_t HostText::GetInput() {
     if(remainingSteps > 0){
         remainingSteps--;
         return -1;
@@ -61,16 +61,16 @@ int HostText::GetInput() {
     std::string input;
     std::cin >> input;
     if(input.empty()) {
-        return -1;
+        return 0;
     }else if(input == "stop") {
         stop = true;
-        return -1;
+        return 0;
     }else if(input[0] == '!'){
             std::cout << "inputting " << std::stoi(std::string(1,input[1]),nullptr,16) << std::endl;
-            return std::stoi(std::string(1,input[1]),nullptr,16);
+            return 1<<std::stoi(std::string(1,input[1]),nullptr,16);
     } else{
         remainingSteps = std::stoi(input) - 1;
-        return -1;
+        return 0;
     }
 }
 

@@ -12,7 +12,7 @@ public:
     virtual void Update(Chip* chip);
     virtual void Draw(Display* display);
 
-    virtual int GetInput();
+    virtual uint16_t GetInput();
 
     virtual void LoadProgram(std::string filename, Chip* chip);
 

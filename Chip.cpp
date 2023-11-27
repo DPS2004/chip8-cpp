@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 #include "Chip.h"
 #include "font.h"
@@ -18,6 +19,7 @@ Chip::Chip() {
     sound = 0;
 
     v = new uint8_t[16]();
+    inputState = new Keystate[16]();
 
 }
 
@@ -39,6 +41,13 @@ void Chip::Init() {
         std::cout  << std::setfill('0') << std::setw(2) << std::right << mem[i]+0;
     }
     */
+
+    //reset keys
+    for (int i = 0; i < 16; ++i) {
+        inputState[i] = up;
+    }
+
+    timerAccumulator = 0;
 }
 
 Display* Chip::GetDisplay() {
@@ -63,7 +72,39 @@ void Chip::LoadProgram(uint8_t *program, int programSize) {
     std::copy(program,program+programSize, mem+PROGRAM_OFFSET);
 }
 
-void Chip::Step(int input) {
+void Chip::Step(uint16_t input, double deltaTime) {
+    
+    //handle input
+    for (int i = 0; i < 16; ++i) {
+        if((input & (1<<i)) == (1<<i)){
+            //std::cout << i << " is down!\n";
+            inputState[i] = down;
+        } else {
+            switch (inputState[i]) {
+                case released:
+                case up:
+                    inputState[i] = up;
+                    break;
+                case down:
+                    inputState[i] = released;
+                    break;
+            }
+        }
+    }
+
+    //handle timers
+    timerAccumulator += deltaTime * 60;
+    int stepsToDo = (int)timerAccumulator;
+    timerAccumulator = std::fmod(timerAccumulator,1);
+    for (int i = 0; i < stepsToDo; ++i) {
+        if(delay > 0){
+            delay--;
+        }
+        if(sound > 0){
+            sound--;
+        }
+    }
+    
     //Fetch
 
     //get current instruction
@@ -122,9 +163,8 @@ void Chip::Step(int input) {
             v[x] += nn;
             break;
         case 0x8: //mathy stuff
-            uint8_t sub_op_1;
-            uint8_t sub_op_2;
             uint8_t vf;
+
 
             switch (n) {
                 case 0x0: //set vx to vy
@@ -149,21 +189,42 @@ void Chip::Step(int input) {
                     v[0xf] = vf;
                     break;
                 case 0x5:
-                    sub_op_1 = x;
-                    sub_op_2 = y;
-                case 0x7:
-                    sub_op_1 = y;
-                    sub_op_2 = x;
                     //subtract
                     vf = 1;
-                    if((int)v[sub_op_1] - (int)v[sub_op_2] < 0) {
+                    if((int)v[x] - (int)v[y] < 0) {
                         //set carry flag
                         vf = 0;
                     }
-                    v[x] = v[sub_op_1] - v[sub_op_2];
+                    v[x] = v[x] - v[y];
                     v[0xf] = vf;
                     break;
-                    //ignoring shift for now
+                case 0x7:
+                    //subtract
+                    vf = 1;
+                    if((int)v[y] - (int)v[x] < 0) {
+                        //set carry flag
+                        vf = 0;
+                    }
+                    v[x] = v[y] - v[x];
+                    v[0xf] = vf;
+                    break;
+                case 0x6: //shift right
+                    if(chipConfig->vyshift){
+                        v[x] = v[y];
+                    }
+                    vf = (v[x]&0x1);
+                    v[x] = v[x] >> 1;
+                    v[0xf] = vf;
+                    break;
+                case 0xe: //shift left
+                    if(chipConfig->vyshift){
+                        v[x] = v[y];
+                    }
+                    vf = (x>>7);
+                    v[x] = v[x] << 1;
+                    v[0xf] = vf;
+
+                    break;
                 default:
                     std::cout << "UNKNOWN MATH INSTRUCTION!\n";
                     break;
@@ -178,16 +239,123 @@ void Chip::Step(int input) {
             index = nnn;
             //std::cout << "index set to " << index << std::endl;
             break;
+        case 0xb: //jump with offset
+            uint8_t offset;
+            offset = 0;
+            if(chipConfig->vxoffsetjump){
+                offset = x;
+            }
+            pc = nnn + v[offset];
+            break;
+        case 0xc: //random
+            v[x] = (rand() & nn);
         case 0xd: //draw
             v[0xf] = display->Draw(v[x],v[y],n,index,mem);
             break;
         case 0xe: //skip (or dont) if key
+            switch (nn) {
+                case 0x9e: //skip if down
+                    if(v[x] <= 0xf){
+                        if(inputState[v[x]] == down){
+                            pc += 2;
+                        }
+                    }
+                    break;
+                case 0xa1:
+                    if(v[x] <= 0xf){
+                        if(inputState[v[x]] != down){
+                            pc += 2;
+                        }
+                    } else {
+                        pc += 2;
+                    }
+                    break;
+                default:
+                    std::cout << "UNKNOWN 0xE INSTRUCTION!\n";
+                    break;
+            }
 
             break;
+        case 0xf://misc
+            uint8_t looplimit;
+            switch (nn) {
+                case 0x07://set vx to delay
+                    v[x] = delay;
+                    break;
+                case 0x15://set delay to vx
+                    delay = v[x];
+                    break;
+                case 0x18://set sound to vx
+                    sound = v[x];
+                    break;
+                case 0x1e://add to index
+                    if(chipConfig->indexoverflow){
+                        if(index + v[x] >= 0x1000){
+                            v[0xf] = 1;
+                        }else {
+                            v[0xf] = 0;
+                        }
+                    }
+                    index = (index + v[x]) & 0x0fff;
+                    break;
+                case 0x0a://get key
+                    for (int i = 0; i < 16; ++i) {
+                        if(chipConfig->waitforrelease){
+                            if(inputState[i] == released){
+                                v[x] = i;
+                            }else{
+                                pc -= 2;
+                            }
+                        } else {
+                            if(inputState[i] == down){
+                                v[x] = i;
+                            }else{
+                                pc -= 2;
+                            }
+                        }
+                    }
+                    break;
+                case 0x29://get font character
+                    index = FONT_OFFSET + (v[x] & 0xf)*5;
+                    break;
+                case 0x33://binary coded decimal (ugh)
+                    mem[index] = v[x]/100;
+                    mem[index+1] = (v[x]%100)/10;
+                    mem[index+2] = (v[x]%10);
+                    break;
+                case 0x55://store
+                    for (int i = 0; i <= x; ++i) {
+                        mem[index+i] = v[i];
+                    }
+                    if(!chipConfig->tempstoreload){
+                        index = index + x + 1;
+                    }
+                    break;
+                case 0x65://load
+                    for (int i = 0; i <= x; ++i) {
+                        v[i] = mem[index+i];
+                    }
+                    if(!chipConfig->tempstoreload){
+                        index = index + x + 1;
+                    }
+                    break;
+                default:
+                    std::cout << "UNKNOWN 0xF INSTRUCTION!\n";
+                    break;
+            }
+            break;
+
         default:
             //unknown instruction!
             std::cout << "UNKNOWN INSTRUCTION!\n";
             break;
 
     }
+
+    /*std::cout << "V: ";
+    for (int i = 0; i < 16; ++i) {
+        std::cout << (int)v[i] << " ";
+    }
+    std::cout << "Index: " << index << std::endl;
+    */
 }

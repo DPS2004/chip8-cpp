@@ -20,7 +20,7 @@ public:
     void Init() override;
     void Update(Chip* chip) override;
     void Draw(Display* display) override;
-    int GetInput() override;
+    uint16_t GetInput() override;
     void LoadProgram(std::string filename, Chip* chip)  override;
 
     void Exit() override;
@@ -37,6 +37,7 @@ private:
     Uint64 lastTick = 0;
 
     double stepAccumulator = 0;
+    double deltaTime = 0;
 };
 
 

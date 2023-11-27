@@ -33,6 +33,7 @@ void HostGraphic::Update(Chip *chip) {
 
 
     stepAccumulator += (double)(SDL_GetTicks() - lastTick) * INSTRUCTIONSPERSECOND * (double)0.001;
+    deltaTime =  (double)(SDL_GetTicks() - lastTick) * (double)0.001;
     lastTick = SDL_GetTicks();
     int stepsToDo = (int)stepAccumulator;
     stepAccumulator = std::fmod(stepAccumulator,1);
@@ -40,13 +41,13 @@ void HostGraphic::Update(Chip *chip) {
     //std::cout << (float)stepsToDo << std::endl;
     if(!stop){
         for (int i = 0; i < stepsToDo; ++i) {
-            chip->Step(input);
+            chip->Step(input, deltaTime);
         }
     }
 
 }
 
-int HostGraphic::GetInput() {
+uint16_t HostGraphic::GetInput() {
 
     SDL_Event e;
     while( SDL_PollEvent( &e ) != 0 )
@@ -57,7 +58,7 @@ int HostGraphic::GetInput() {
         }
     }
 
-    return -1;
+    return 0;
 }
 
 void HostGraphic::Draw(Display *display) {

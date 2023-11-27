@@ -16,9 +16,9 @@ void Host::Draw(Display* display) {
 
 }
 
-//Returns 0x0 through 0xf for keys, or -1 for no input at all.
-int Host::GetInput() {
-    return -1;
+//Returns bitfield based on input
+uint16_t Host::GetInput() {
+    return 0;
 }
 
 //Load a binary program from a file into memory

@@ -11,7 +11,7 @@ public:
     void Init() override;
     void Update(Chip* chip) override;
     void Draw(Display* display) override;
-    int GetInput() override;
+    uint16_t GetInput() override;
     void LoadProgram(std::string filename, Chip* chip)  override;
     void Exit() override;
 private:
