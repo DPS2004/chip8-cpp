@@ -24,6 +24,8 @@ add_executable(chip8_cpp_graphic main.cpp
         font.h
         Display.cpp
         Display.h
+        ChipConfig.cpp
+        ChipConfig.h
 )
 
 target_compile_definitions(chip8_cpp_graphic PUBLIC HOST_GRAPHIC)
@@ -38,6 +40,8 @@ add_executable(chip8_cpp_text main.cpp
         Chip.h
         font.h
         Display.cpp
-        Display.h)
+        Display.h
+        ChipConfig.cpp
+        ChipConfig.h)
 target_compile_definitions(chip8_cpp_text PUBLIC HOST_TEXT)
 target_link_libraries(${PROJECT_NAME}_text)

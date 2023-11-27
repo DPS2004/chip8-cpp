@@ -66,9 +66,9 @@ void HostGraphic::Draw(Display *display) {
     SDL_FillRect( screenSurface, nullptr, colorOff );
 
 
-    for (int y = 0; y < CHIPDISPLAYHEIGHT; y++) {
-        for (int x = 0; x < CHIPDISPLAYWIDTH; x++) {
-            if(display->data[y*CHIPDISPLAYWIDTH+x]){
+    for (int y = 0; y < display->height; y++) {
+        for (int x = 0; x < display->width; x++) {
+            if(display->data[y*display->width+x]){
                 DrawPixel(x,y);
             }
         }

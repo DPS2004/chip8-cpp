@@ -5,6 +5,8 @@
 
 #if HOST_GRAPHIC
     #include "Hosts/HostGraphic.h"
+#include "ChipConfig.h"
+
 #endif
 #if HOST_TEXT
     #include "Hosts/HostText.h"
@@ -13,10 +15,13 @@
 int main(int argc, char* args[]) {
 
     Chip* chip = new Chip;
+
     //set up host
     Host* host;
+
 #if HOST_GRAPHIC
     host = new HostGraphic;
+
 #endif
 
 #if HOST_TEXT
@@ -26,7 +31,7 @@ int main(int argc, char* args[]) {
     chip->Init();
 
     host->Init();
-    host->LoadProgram("Programs/ibm.ch8", chip);
+    host->LoadProgram("Programs/test_opcode.ch8", chip);
 
     while(!host->GetStop()){
         host->Update(chip);

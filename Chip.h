@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "Display.h"
+#include "ChipConfig.h"
 #include <vector>
 
 #define PROGRAM_OFFSET 0x200
@@ -13,12 +14,14 @@ public:
     void Init();
     void LoadProgram(uint8_t* program, int programSize);
     Display* GetDisplay();
+    ChipConfig* chipConfig;
 
     void Step(int input);
 
 private:
 
     uint8_t* mem;
+
 
     Display* display;
 

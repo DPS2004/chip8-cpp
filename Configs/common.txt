@@ -1,0 +1,36 @@
+The default mode, should work for most programs.
+
+Screen Width:
+64
+
+Screen Height:
+32
+
+Instructions Per Second:
+700
+
+Memory size:
+4096
+
+VY Shift:
+0
+
+VX offset jump:
+0
+
+Index overflow:
+1
+
+Temp variable for Store/Load:
+1
+
+Wait for key release for fx0a:
+0
+
+Emulate VIP Cosmac timings for instructions:
+0
+
+Page size (only useful if above is set to true):
+256
+
+end
