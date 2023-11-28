@@ -73,12 +73,16 @@ void Chip::LoadProgram(uint8_t *program, int programSize) {
 }
 
 void Chip::Step(uint16_t input, double deltaTime) {
-    
+    std::cout << "--------------------------------------\n";
     //handle input
     for (int i = 0; i < 16; ++i) {
         if((input & (1<<i)) == (1<<i)){
             //std::cout << i << " is down!\n";
-            inputState[i] = down;
+            if(inputState[i] == down || inputState[i] == held){
+                inputState[i] = held;
+            } else {
+                inputState[i] = down;
+            }
         } else {
             switch (inputState[i]) {
                 case released:
@@ -86,6 +90,7 @@ void Chip::Step(uint16_t input, double deltaTime) {
                     inputState[i] = up;
                     break;
                 case down:
+                case held:
                     inputState[i] = released;
                     break;
             }
@@ -220,7 +225,7 @@ void Chip::Step(uint16_t input, double deltaTime) {
                     if(chipConfig->vyshift){
                         v[x] = v[y];
                     }
-                    vf = (x>>7);
+                    vf = (v[x]>>7);
                     v[x] = v[x] << 1;
                     v[0xf] = vf;
 
@@ -229,6 +234,7 @@ void Chip::Step(uint16_t input, double deltaTime) {
                     std::cout << "UNKNOWN MATH INSTRUCTION!\n";
                     break;
             }
+            break;
 
         case 0x9: //skip if vx != vy
             if(v[x] != v[y]){
@@ -291,26 +297,30 @@ void Chip::Step(uint16_t input, double deltaTime) {
                 case 0x1e://add to index
                     if(chipConfig->indexoverflow){
                         if(index + v[x] >= 0x1000){
-                            v[0xf] = 1;
+                            vf = 1;
                         }else {
-                            v[0xf] = 0;
+                            vf = 0;
                         }
                     }
                     index = (index + v[x]) & 0x0fff;
+                    if(chipConfig->indexoverflow){
+                        v[0xf] = vf;
+                    }
                     break;
                 case 0x0a://get key
+                    pc -= 2;
                     for (int i = 0; i < 16; ++i) {
                         if(chipConfig->waitforrelease){
-                            if(inputState[i] == released){
+                            if(inputState[i] == released) {
                                 v[x] = i;
-                            }else{
-                                pc -= 2;
+                                pc += 2;
+                                break;
                             }
                         } else {
                             if(inputState[i] == down){
                                 v[x] = i;
-                            }else{
-                                pc -= 2;
+                                pc += 2;
+                                break;
                             }
                         }
                     }
@@ -352,7 +362,8 @@ void Chip::Step(uint16_t input, double deltaTime) {
 
     }
 
-    /*std::cout << "V: ";
+    /*
+    std::cout << "V: ";
     for (int i = 0; i < 16; ++i) {
         std::cout << (int)v[i] << " ";
     }

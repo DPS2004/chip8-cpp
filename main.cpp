@@ -31,7 +31,7 @@ int main(int argc, char* args[]) {
     chip->Init();
 
     host->Init();
-    host->LoadProgram("Programs/test_opcode.ch8", chip);
+    host->LoadProgram("Programs/4-flags.ch8", chip);
 
     while(!host->GetStop()){
         host->Update(chip);

@@ -10,7 +10,8 @@
 enum Keystate{
     released,
     up,
-    down
+    down,
+    held
 };
 
 //The actual CHIP-8 interpreter
