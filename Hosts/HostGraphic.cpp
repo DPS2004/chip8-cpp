@@ -50,6 +50,7 @@ void HostGraphic::Update(Chip *chip) {
 uint16_t HostGraphic::GetInput() {
 
     SDL_Event e;
+    uint16_t inputState = 0;
     while( SDL_PollEvent( &e ) != 0 )
     {
         if( e.type == SDL_QUIT )
@@ -58,7 +59,20 @@ uint16_t HostGraphic::GetInput() {
         }
     }
 
-    return 0;
+    const Uint8* keystate = SDL_GetKeyboardState(nullptr);
+    for (int i = 0; i <= 0xf; ++i) {
+        SDL_Scancode keycode;
+        if(useVipsLayout){
+            keycode = map_vips[i];
+        }else{
+            keycode = map_default[i];
+        }
+        if(keystate[keycode]){
+            inputState += 1 << i;
+        }
+    }
+
+    return inputState;
 }
 
 void HostGraphic::Draw(Display *display) {

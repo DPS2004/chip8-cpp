@@ -31,7 +31,7 @@ int main(int argc, char* args[]) {
     chip->Init();
 
     host->Init();
-    host->LoadProgram("Programs/4-flags.ch8", chip);
+    host->LoadProgram("Programs/waitforkey.ch8", chip);
 
     while(!host->GetStop()){
         host->Update(chip);
