@@ -28,14 +28,27 @@ int main(int argc, char* args[]) {
     host = new HostText;
 #endif
 
-    chip->Init();
+    //chip->Init();
 
     host->Init();
-    host->LoadProgram("Programs/waitforkey.ch8", chip);
+    //note to self: maybe just make it a CLI program if a menu is too hard.
+    //host->LoadProgram("Programs/slipperyslope.ch8", chip);
 
-    while(!host->GetStop()){
-        host->Update(chip);
-        host->Draw(chip->GetDisplay());
+    host->InitMenu();
+    while(host->GetState() != STOP){
+        switch (host->GetState()) {
+
+            case SELECT_PROGRAM:
+                host->UpdateMenu(chip);
+                host->DrawMenu();
+                break;
+            case RUN_PROGRAM:
+                host->Update(chip);
+                host->Draw(chip->GetDisplay());
+                break;
+            case STOP:
+                break;
+        }
     }
 
     host->Exit();

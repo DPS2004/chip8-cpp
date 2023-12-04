@@ -1,12 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include "HostText.h"
+#include <dirent.h>
 
 void HostText::Init() {
     std::cout << "Text init" << std::endl;
     border = '.';
     borderLine = std::string(CHIPDISPLAYWIDTH+2,border);
     remainingSteps = 0;
+    state = SELECT_PROGRAM;
 }
 
 void HostText::Draw(Display* display) {
@@ -46,7 +48,7 @@ void HostText::LoadProgram(std::string filename, Chip* chip) {
 
 void HostText::Update(Chip *chip) {
     int input = GetInput();
-    if(!stop){
+    if(state == RUN_PROGRAM){
         chip->Step(input,((double)1/(double)60));
     }
 }
@@ -57,13 +59,14 @@ uint16_t HostText::GetInput() {
         return -1;
     }
 
-    std::cout <<"input X to step X times, input !X to step once while pressing down X: ";
+    std::cout <<"input X to step X times, input !X to step once while pressing down X, or stop to return to menu: ";
     std::string input;
-    std::cin >> input;
+    std::getline(std::cin, input);
     if(input.empty()) {
         return 0;
     }else if(input == "stop") {
-        stop = true;
+        state = SELECT_PROGRAM;
+        InitMenu();
         return 0;
     }else if(input[0] == '!'){
             std::cout << "inputting " << std::stoi(std::string(1,input[1]),nullptr,16) << std::endl;
@@ -76,4 +79,34 @@ uint16_t HostText::GetInput() {
 
 void HostText::Exit() {
     std::cout << "Exiting program..." << std::endl;
+}
+
+void HostText::UpdateMenu(Chip *chip) {
+    //Host::UpdateMenu(chip);
+    std::cout << "--------SELECT PROGRAM--------" << std::endl;
+    std::cout << "Type the name of a program in the Programs/ directory (with the extension), or type \"stop\" to stop." << std::endl;
+    std::string infile;
+    std::getline(std::cin, infile);
+
+    if(infile == "stop"){
+        state = STOP;
+    } else {
+        std::ifstream f(PROGRAMDIRECTORY + infile);
+        if(f.good()){
+            chip->Init();
+            std::cout << "Loading " << PROGRAMDIRECTORY << infile << std::endl;
+            LoadProgram(PROGRAMDIRECTORY+infile, chip);
+            state = RUN_PROGRAM;
+        }else{
+            std::cout <<"Error while loading " << PROGRAMDIRECTORY << infile << std::endl;
+        }
+        f.close();
+    }
+
+
+}
+
+void HostText::DrawMenu() {
+    Host::DrawMenu();
+
 }

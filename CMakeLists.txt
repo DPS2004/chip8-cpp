@@ -29,7 +29,7 @@ add_executable(chip8_cpp_graphic main.cpp
 )
 
 target_compile_definitions(chip8_cpp_graphic PUBLIC HOST_GRAPHIC)
-target_link_libraries(${PROJECT_NAME}_graphic SDL2main SDL2)
+target_link_libraries(${PROJECT_NAME}_graphic SDL2main SDL2 SDL2_ttf)
 
 add_executable(chip8_cpp_text main.cpp
         Host.cpp

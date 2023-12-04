@@ -26,6 +26,15 @@ Chip::Chip() {
 void Chip::Init() {
 
     pc = PROGRAM_OFFSET;
+    index = 0;
+
+    stack.clear();
+
+    delay = 0;
+    sound = 0;
+
+    v = new uint8_t[16]();
+    inputState = new Keystate[16]();
 
     chipConfig = new ChipConfig("common");
     mem = new uint8_t[chipConfig->memsize]();
@@ -262,14 +271,14 @@ void Chip::Step(uint16_t input, double deltaTime) {
             switch (nn) {
                 case 0x9e: //skip if down
                     if(v[x] <= 0xf){
-                        if(inputState[v[x]] == down){
+                        if(inputState[v[x]] == down or inputState[v[x]] == held){
                             pc += 2;
                         }
                     }
                     break;
                 case 0xa1:
                     if(v[x] <= 0xf){
-                        if(inputState[v[x]] != down){
+                        if(inputState[v[x]] == up or inputState[v[x]] == released){
                             pc += 2;
                         }
                     } else {

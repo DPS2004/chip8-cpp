@@ -4,6 +4,12 @@
 #include "Display.h"
 #include "Chip.h"
 
+enum HostState{
+    SELECT_PROGRAM,
+    RUN_PROGRAM,
+    STOP
+};
+
 //A "host" is a class that controls rendering and input, and file management.
 class Host {
 
@@ -16,11 +22,21 @@ public:
 
     virtual void LoadProgram(std::string filename, Chip* chip);
 
+    virtual void InitMenu();
+    virtual void UpdateMenu(Chip* chip);
+    virtual void DrawMenu();
+
     virtual void Exit();
 
-    bool GetStop();
+    void GetPrograms(std::vector<std::string> *programlist, const std::string& dirpath);
+
+    HostState GetState();
 
 protected:
-    bool stop;
+    //bool stop;
+    HostState state;
+    std::vector<std::string> programs;
+
+
 };
 

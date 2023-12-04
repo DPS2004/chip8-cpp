@@ -2,6 +2,7 @@
 
 #include "../Host.h"
 #include "SDL.h"
+#include <SDL_ttf.h>
 
 
 #define SCREENSCALE 8
@@ -14,12 +15,19 @@
 #define COLOR_OFF 0x00, 0x00, 0x00
 #define COLOR_ON 0xFF, 0xFF, 0xFF
 
+#define PROGRAMDIRECTORY "Programs"
+
 
 class HostGraphic: public Host {
 public:
     void Init() override;
     void Update(Chip* chip) override;
     void Draw(Display* display) override;
+
+    void InitMenu() override;
+    void UpdateMenu(Chip* chip) override;
+    void DrawMenu() override;
+
     uint16_t GetInput() override;
     void LoadProgram(std::string filename, Chip* chip)  override;
 
@@ -27,6 +35,8 @@ public:
 
 private:
     void DrawPixel(int x, int y);
+
+    void DrawText(const std::string& text, int x, int y);
 
     SDL_Window* window = nullptr;
     SDL_Surface* screenSurface = nullptr;
@@ -40,6 +50,20 @@ private:
     double deltaTime = 0;
 
     bool useVipsLayout = true;
+
+    bool upPressed = false;
+    bool downPressed = false;
+    bool enterPressed = false;
+    bool backPressed = false;
+
+    int selectedProgram = 0;
+
+    TTF_Font* font = nullptr;
+    SDL_Surface* textSurface = nullptr;
+    SDL_Texture* textTexture = nullptr;
+    SDL_Rect textPosition;
+    SDL_Renderer* textRenderer;
+
 };
 
 const SDL_Scancode map_default[] = {
