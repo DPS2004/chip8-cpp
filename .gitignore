@@ -1,2 +1,8 @@
 .idea/
 cmake-build-debug/
+3ds-build/
+build/
+romfs/
+*.elf
+*.3dsx
+*.smdh

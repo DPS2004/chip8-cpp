@@ -12,6 +12,10 @@
     #include "Hosts/HostText.h"
 #endif
 
+#if HOST_3DS
+#include "Hosts/3ds/Host3ds.h"
+#endif
+
 int main(int argc, char* args[]) {
 
     Chip* chip = new Chip;
@@ -26,6 +30,11 @@ int main(int argc, char* args[]) {
 
 #if HOST_TEXT
     host = new HostText;
+#endif
+
+
+#if HOST_3DS
+    host = new Host3ds;
 #endif
 
     //chip->Init();

@@ -25,6 +25,7 @@ Chip::Chip() {
 
 void Chip::Init() {
 
+	chipConfig = new ChipConfig("common");
     pc = PROGRAM_OFFSET;
     index = 0;
 
@@ -36,20 +37,15 @@ void Chip::Init() {
     v = new uint8_t[16]();
     inputState = new Keystate[16]();
 
-    chipConfig = new ChipConfig("common");
+	
+
     mem = new uint8_t[chipConfig->memsize]();
 
     display = new Display(chipConfig->screenwidth,chipConfig->screenheight);
 
     //load font
     std::copy(font,font+FONT_SIZE,mem+FONT_OFFSET);
-    /*
-    for (int i = 0; i < 0x512; ++i) {
-        std::cout.setf(std::ios::hex, std::ios::basefield);
-        std::cout.precision(4);
-        std::cout  << std::setfill('0') << std::setw(2) << std::right << mem[i]+0;
-    }
-    */
+
 
     //reset keys
     for (int i = 0; i < 16; ++i) {
@@ -57,6 +53,9 @@ void Chip::Init() {
     }
 
     timerAccumulator = 0;
+		/*
+	*/
+	
 }
 
 Display* Chip::GetDisplay() {

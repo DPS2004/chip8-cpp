@@ -45,3 +45,19 @@ add_executable(chip8_cpp_text main.cpp
         ChipConfig.h)
 target_compile_definitions(chip8_cpp_text PUBLIC HOST_TEXT)
 target_link_libraries(${PROJECT_NAME}_text)
+
+add_executable(chip8_cpp_3ds main.cpp
+        Host.cpp
+        Host.h
+        Chip.cpp
+        Chip.h
+        font.h
+        Display.cpp
+        Display.h
+        ChipConfig.cpp
+        ChipConfig.h
+        Hosts/3ds/Host3ds.h
+        Hosts/3ds/Host3ds.cpp
+)
+target_compile_definitions(chip8_cpp_3ds PUBLIC HOST_3DS)
+target_link_libraries(${PROJECT_NAME}_3ds)

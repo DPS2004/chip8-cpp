@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include <iostream>
+#include <fstream>
+#include <cstdio>
 #include <string>
 
 class ChipConfig {
@@ -9,6 +12,8 @@ public:
     ChipConfig(const std::string& filename);
     void LoadConfig(const std::string& filename);
 
+	std::ifstream configInput;
+	
     int screenwidth;
     int screenheight;
     int ips;
