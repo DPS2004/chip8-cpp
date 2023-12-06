@@ -11,7 +11,7 @@ void Host3ds::Init() {
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
-	consoleInit(GFX_BOTTOM, NULL);
+	//consoleInit(GFX_BOTTOM, NULL);
 	
     std::cout << "3ds init" << std::endl;
 	
@@ -24,6 +24,10 @@ void Host3ds::Init() {
 	font = C2D_FontLoad("romfs:/pico-8-mono.bcfnt");
 	colorOff = C2D_Color32(0x00, 0x00, 0x00, 0xFF);
 	colorOn = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
+	
+	spritesheet = C2D_SpriteSheetLoad("romfs:/keypad.t3x");
+	C2D_SpriteFromSheet(&keypadSprite, spritesheet, 0);
+	C2D_SpriteSetPos(&keypadSprite,0,0);
 
 	/*
     screenSurface = SDL_GetWindowSurface( window );
@@ -138,6 +142,18 @@ uint16_t Host3ds::GetInput() {
     }
 	*/
 	
+	touchPosition touch;
+	hidTouchRead(&touch);
+	if(touch.px >= TOUCHXOFFSET && touch.px < TOUCHXOFFSET + (KEYSIZE * 4)){
+		touchDown = true;
+		touchX = ((touch.px - TOUCHXOFFSET) / KEYSIZE);
+		touchY = (touch.py / KEYSIZE);
+		inputState = 1 << keypadMap[touchY][touchX];
+	} else {
+		touchDown = false;
+		inputState = 0;
+	}
+	
 	
     return inputState;
 }
@@ -157,6 +173,14 @@ void Host3ds::Draw(Display *display) {
     }
     display->updated=false;
 
+	C2D_TargetClear(bottom, colorOff);
+	C2D_SceneBegin(bottom);
+	
+	C2D_DrawSprite(&keypadSprite);
+	if(touchDown){
+		C2D_DrawRectSolid(touchX*KEYSIZE + TOUCHXOFFSET, touchY*KEYSIZE, 1, KEYSIZE, KEYSIZE,C2D_Color32(0x00, 0x00, 0x00, 0x80));
+	}
+	
 	C3D_FrameEnd(0);
 }
 
@@ -190,6 +214,11 @@ void Host3ds::Exit() {
     SDL_DestroyWindow( window );
     SDL_Quit();
 	*/
+	C2D_SpriteSheetFree(spritesheet);
+	C2D_Fini();
+	C3D_Fini();
+	gfxExit();
+	romfsExit();
 }
 
 void Host3ds::InitMenu() {
@@ -241,6 +270,9 @@ void Host3ds::DrawMenu() {
             DrawText("  " + programs[i],10,(SCREENHEIGHT / 2) + ((i-selectedProgram) *24));
         }
     }
+	
+	C2D_TargetClear(bottom, colorOff);
+	C2D_SceneBegin(bottom);
 	
 	C3D_FrameEnd(0);
 

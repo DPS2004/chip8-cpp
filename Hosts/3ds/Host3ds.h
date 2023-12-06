@@ -20,6 +20,9 @@
 
 #define PROGRAMDIRECTORY "Programs"
 
+#define TOUCHXOFFSET 40
+#define KEYSIZE 60
+
 
 class Host3ds: public Host {
 public:
@@ -65,16 +68,24 @@ private:
     bool backPressed = false;
 
     int selectedProgram = 0;
+	
+	int touchX = 0;
+	int touchY = 0;
+	bool touchDown = false;
 
 	C2D_Font font;
 	C2D_TextBuf textBuf;
 	C2D_Text staticText;
-    /*
-    TTF_Font* font = nullptr;
-    SDL_Surface* textSurface = nullptr;
-    SDL_Texture* textTexture = nullptr;
-    SDL_Rect textPosition;
-    SDL_Renderer* textRenderer;
-    */
+	
+	C2D_SpriteSheet spritesheet;
+	C2D_Sprite keypadSprite;
 
+};
+
+const uint16_t keypadMap[4][4] = {
+	{0x1,0x2,0x3,0xc},
+	{0x4,0x5,0x6,0xd},
+	{0x7,0x8,0x9,0xe},
+	{0xa,0x0,0xb,0xf}
+	
 };
